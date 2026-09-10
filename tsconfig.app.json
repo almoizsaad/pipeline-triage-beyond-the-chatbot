@@ -46,7 +46,6 @@
     "src/hooks/useSystemTelemetry.ts",
     "src/lib/agents",
     "src/lib/types/intent.ts",
-    "src/stores/systemStore.ts",
     "src/stores/userStore.ts",
     "src/stores/intentStore.ts",
     "src/stores/logStore.ts",
