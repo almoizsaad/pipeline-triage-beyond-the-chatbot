@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp, Brain, Sparkles } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 interface ReasoningPanelProps {
   reasoning: string;

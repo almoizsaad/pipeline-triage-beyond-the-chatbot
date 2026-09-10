@@ -197,12 +197,6 @@ export default function Home() {
                 Open Pipeline Triage
                 <ArrowRight className="w-4 h-4" />
               </Link>
-              <Link
-                to="/workspace"
-                className="nexus-btn nexus-btn-secondary ml-3"
-              >
-                Legacy generative OS demo
-              </Link>
             </motion.div>
 
             <motion.div

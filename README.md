@@ -69,7 +69,7 @@ See [NOTES.md](./NOTES.md).
 
 ## Tech stack
 
-React 19 + TypeScript + Vite + Tailwind + shadcn/ui, React Router. No backend required to run the demo — the CRM dataset is a static, realistically-structured sample (see NOTES.md). The repo also ships a larger generative-agent runtime (`src/agent/`) from an earlier iteration of this project; it powers the legacy `/workspace` route and is **not** part of the graded submission — see NOTES.md → "Out of scope."
+React 19 + TypeScript + Vite + Tailwind + shadcn/ui, React Router. No backend required to run the demo — the CRM dataset is a static, realistically-structured sample (see NOTES.md). The repo also carries a larger generative-agent runtime (`src/agent/`) from an earlier iteration of this project; it is **not** part of the graded submission, has no route into it in the running app, and is excluded from the TypeScript build — see NOTES.md → "Out of scope."
 
 ## Quick start
 

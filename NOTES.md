@@ -46,8 +46,11 @@ operate on the same `Deal` interface.
 - `src/agent/*` — the multi-agent planner/executor/memory/reflection system
   and its 300+ supporting files. This was the subject of the earlier,
   unfocused iteration of the project and is not part of the graded
-  workflow. It still powers the legacy `/workspace` route, which is left
-  running for reference but is not the submission.
+  workflow. The `/workspace` route that used to expose it has been removed
+  from the app entirely (see `App.tsx`) — the legacy files are kept in the
+  repo only for reference, and are excluded from the TypeScript build
+  (`tsconfig.app.json`) so they can't block deploys or accidentally ship
+  broken UI to a reviewer.
 - Real CRM integration (HubSpot/Salesforce OAuth) — the dataset is static.
 - Persisting "not the priority" corrections back into the ranking weights
   across sessions — documented as a known limitation in FAILURE_TESTS.md.

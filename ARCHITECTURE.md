@@ -60,8 +60,9 @@ mode described in the challenge brief.
 
 ## Legacy code in this repo
 
-`src/agent/`, `src/components/generative-ui/`, and the `/workspace` route
-are a broader "generative agent OS" prototype from an earlier iteration of
-this project (free-text intent → dynamically generated UI). It is left in
-the repo for reference but is **out of scope for this submission** — the
-graded workflow is `/triage` only. See NOTES.md.
+`src/agent/` and `src/components/generative-ui/` are a broader "generative
+agent OS" prototype from an earlier iteration of this project (free-text
+intent → dynamically generated UI). The route that used to expose it
+(`/workspace`) has been removed from the app — the graded workflow is
+`/triage` only, reachable from the homepage. The legacy files remain in the
+repo for reference and are excluded from the TypeScript build. See NOTES.md.

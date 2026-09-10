@@ -11,7 +11,6 @@ import { MemoryManager } from '../agent/memory/MemoryManager';
 import { KnowledgeDatabase } from '../agent/knowledge/KnowledgeDatabase';
 import { EventBus } from '../agent/core/EventBus';
 import { initializeRegistry } from '../registry/defaultRegistry';
-import { MockLLMProvider } from '../agent/providers/MockLLMProvider';
 import { ToolRegistry } from '../agent/tools/ToolRegistry';
 import { registerDefaultTools } from '../agent/tools/registerTools';
 import type { LLMProvider } from '../agent/providers/LLMProvider';

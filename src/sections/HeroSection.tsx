@@ -106,11 +106,11 @@ export default function HeroSection() {
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
           <a
-            href="#/workspace"
+            href="#/triage"
             className="nexus-btn nexus-btn-primary"
             style={{ padding: '0.75rem 2rem', fontSize: '16px' }}
           >
-            Enter Workspace
+            Open Pipeline Triage
             <ArrowDown className="w-4 h-4 rotate-[-90deg]" />
           </a>
           <a

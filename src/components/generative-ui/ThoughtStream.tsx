@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useMissionStore } from '@/stores/missionStore';
-import { Brain, Sparkles, MessageSquare, Terminal } from 'lucide-react';
+import { Brain, Sparkles, Terminal } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
 
 export const ThoughtStream: React.FC = () => {
   const { missions } = useMissionStore();

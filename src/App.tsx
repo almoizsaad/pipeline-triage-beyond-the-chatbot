@@ -3,7 +3,6 @@ import { Suspense, lazy } from 'react';
 import { Toaster } from '@/components/ui/sonner';
 
 const Home = lazy(() => import('./pages/Home'));
-const Workspace = lazy(() => import('./pages/Workspace'));
 const Triage = lazy(() => import('./triage/TriagePage'));
 
 function PageSkeleton() {
@@ -25,7 +24,6 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/triage" element={<Triage />} />
-          <Route path="/workspace" element={<Workspace />} />
         </Routes>
       </Suspense>
       <Toaster

@@ -30,5 +30,26 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": [
+    "src/agent",
+    "src/cli",
+    "src/registry",
+    "src/workspace",
+    "src/server.ts",
+    "src/pages/Workspace.tsx",
+    "src/components/generative-ui",
+    "src/components/mission",
+    "src/components/workspace",
+    "src/hooks/useAgent.ts",
+    "src/hooks/useWorkspaceAgent.ts",
+    "src/hooks/useSystemTelemetry.ts",
+    "src/lib/agents",
+    "src/lib/types/intent.ts",
+    "src/stores/systemStore.ts",
+    "src/stores/userStore.ts",
+    "src/stores/intentStore.ts",
+    "src/stores/logStore.ts",
+    "src/stores/missionStore.ts"
+  ]
 }

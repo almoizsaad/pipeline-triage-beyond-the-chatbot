@@ -12,6 +12,7 @@ import {
   ChevronUp
 } from 'lucide-react';
 import type { SystemMetrics, OptimizationRecommendation } from '../../agent/types/improvement';
+import { Badge } from '@/components/ui/badge';
 
 interface MetricsDashboardProps {
   metrics: SystemMetrics | null;

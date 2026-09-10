@@ -4,7 +4,6 @@ import {
   Network, 
   Search, 
   Database, 
-  Link as LinkIcon, 
   Calendar,
   Info
 } from 'lucide-react';
@@ -12,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 interface KnowledgeExplorerProps {
   mission: Mission;

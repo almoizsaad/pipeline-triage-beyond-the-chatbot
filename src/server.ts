@@ -68,7 +68,8 @@ app.post('/api/missions', authenticate, async (req, res) => {
 });
 
 app.get('/api/missions/:id', authenticate, (req, res) => {
-  const mission = brain.getGoalManager().getMission(req.params.id);
+  const missionId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const mission = brain.getGoalManager().getMission(missionId);
   if (!mission) return res.status(404).json({ error: 'Mission not found' });
   res.json(mission);
 });

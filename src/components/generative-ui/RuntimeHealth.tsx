@@ -2,7 +2,6 @@ import React from 'react';
 import { 
   Activity, 
   Cpu, 
-  Database, 
   Shield, 
   Zap, 
   Users,
