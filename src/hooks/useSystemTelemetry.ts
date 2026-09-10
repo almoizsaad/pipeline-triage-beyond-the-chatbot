@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useSystemStore } from '@/stores/systemStore';
 import { agent } from '@/agent/bootstrap/createAgent';
 import { AgentEventType } from '@/agent/types/agent';
+import type { AgentLifecycleEvent } from '@/agent/types/agent';
 
 export function useSystemTelemetry() {
   const { updateTelemetry, upsertAgent, removeAgent, updateAgentStatus } = useSystemStore();
@@ -10,7 +11,6 @@ export function useSystemTelemetry() {
     // 1. Subscribe to system telemetry (API metrics, health, etc.)
     const unsubscribeTelemetry = agent.eventBus.subscribe('system:telemetry', (event: any) => {
       if (event.type === 'API_METRIC') {
-        const metric = event.payload;
         updateTelemetry({
           totalMessages: useSystemStore.getState().telemetry.totalMessages + 1,
           lastMessageTimestamp: Date.now()
@@ -19,9 +19,10 @@ export function useSystemTelemetry() {
     });
 
     // 2. Subscribe to agent events (lifecycle)
-    const unsubscribeAgents = agent.eventBus.subscribe('agent:events', (event: any) => {
-      if (event.type === AgentEventType.AGENT_STARTED) {
-        const { identity } = event.payload;
+    const unsubscribeAgents = agent.eventBus.subscribe('agent:lifecycle', (event: any) => {
+      if (event.type !== AgentEventType.AGENT_LIFECYCLE) return;
+      const { agentId, action, identity } = (event as AgentLifecycleEvent).payload;
+      if (action === 'spawned') {
         upsertAgent({
           id: identity.id,
           name: identity.name,
@@ -31,12 +32,11 @@ export function useSystemTelemetry() {
           tasksCompleted: 0,
           cpuTime: 0
         });
-      } else if (event.type === AgentEventType.AGENT_STOPPED) {
-        const { agentId } = event.payload;
+      } else if (action === 'destroyed') {
         removeAgent(agentId);
-      } else if (event.type === AgentEventType.AGENT_STATUS_CHANGED) {
-        const { agentId, status } = event.payload;
-        updateAgentStatus(agentId, status);
+      } else {
+        // paused, resumed, restarted
+        updateAgentStatus(agentId, action);
       }
     });
 

@@ -8,7 +8,6 @@ import { ExecutiveBrain } from './agent/core/ExecutiveBrain';
 import { APIMetricsManager } from './agent/core/APIMetricsManager';
 import { AgentRegistry } from './agent/core/AgentRegistry';
 import { EventBus } from './agent/core/EventBus';
-import { AgentEventType } from './agent/types/agent';
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -36,17 +35,17 @@ DependencyRegistry.registerCoreServices(globalContainer);
 const brain = globalContainer.resolve(ExecutiveBrain);
 const metrics = globalContainer.resolve(APIMetricsManager);
 const registry = globalContainer.resolve(AgentRegistry);
-const eventBus = globalContainer.resolve(EventBus);
+globalContainer.resolve(EventBus);
 
 // 4. API Endpoints
 
 // Health Check
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.json({ status: 'healthy', uptime: process.uptime(), timestamp: Date.now() });
 });
 
 // Metrics Endpoint (Prometheus-style or JSON)
-app.get('/metrics', authenticate, (req, res) => {
+app.get('/metrics', authenticate, (_req, res) => {
   const stats = metrics.getAllStats();
   res.json({
     metrics: stats,
@@ -69,7 +68,7 @@ app.post('/api/missions', authenticate, async (req, res) => {
 });
 
 app.get('/api/missions/:id', authenticate, (req, res) => {
-  const mission = brain.getMission(req.params.id);
+  const mission = brain.getGoalManager().getMission(req.params.id);
   if (!mission) return res.status(404).json({ error: 'Mission not found' });
   res.json(mission);
 });

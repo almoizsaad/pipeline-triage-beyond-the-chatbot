@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { rankDeals, draftReengagementEmail } from '../inference';
 import type { Deal } from '../deals';
 
-function makeDeal(overrides: Partial<Deal>): Deal {
+function makeDeal(overrides: Partial<Deal> = {}): Deal {
   return {
     id: 'D-TEST',
     dealname: 'Test Co — Widget Rollout',

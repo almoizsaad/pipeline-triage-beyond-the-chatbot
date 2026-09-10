@@ -3,7 +3,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/componen
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import type { Mission, MissionPriority, MissionStatus } from '@/agent/types/mission';
-import { Target, AlertCircle, CheckCircle2, Clock, Play, Pause, Square } from 'lucide-react';
+import { Target, AlertCircle, CheckCircle2, Clock, Play, Pause, Square, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface MissionCardProps {

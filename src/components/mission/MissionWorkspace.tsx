@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useMissionStore } from '@/stores/missionStore';
 import { MissionCard } from './MissionCard';
 import { MissionPanel } from './MissionPanel';
@@ -16,7 +16,6 @@ import { useSystemTelemetry } from '@/hooks/useSystemTelemetry';
 export const MissionWorkspace: React.FC = () => {
   useSystemTelemetry();
   const { missions, activeMissionId, setActiveMission, addMission } = useMissionStore();
-  const [activeTab, setActiveTab] = useState<'missions' | 'thoughts' | 'health'>('missions');
   const activeMission = activeMissionId ? missions[activeMissionId] : null;
 
   useEffect(() => {
