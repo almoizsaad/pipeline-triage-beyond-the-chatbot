@@ -1,8 +1,6 @@
-import { Routes, Route } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
-import { Toaster } from '@/components/ui/sonner';
 
-const Triage = lazy(() => import('./triage/TriagePage'));
+const TriagePage = lazy(() => import('./triage/TriagePage'));
 
 function PageSkeleton() {
   return (
@@ -16,27 +14,13 @@ function PageSkeleton() {
   );
 }
 
+// This is the entire app: one workflow, one screen. There is no router and
+// no separate landing page — the triage view IS the homepage. See NOTES.md
+// for why a marketing-style entry screen was deliberately removed.
 export default function App() {
   return (
-    <>
-      <Suspense fallback={<PageSkeleton />}>
-        <Routes>
-          <Route path="/" element={<Triage />} />
-          <Route path="/triage" element={<Triage />} />
-        </Routes>
-      </Suspense>
-      <Toaster
-        position="bottom-right"
-        toastOptions={{
-          style: {
-            background: '#FFFFFF',
-            border: '1px solid #E7E5E4',
-            borderRadius: '12px',
-            boxShadow: '0 4px 6px -1px rgba(28, 25, 23, 0.05)',
-            color: '#292524',
-          },
-        }}
-      />
-    </>
+    <Suspense fallback={<PageSkeleton />}>
+      <TriagePage />
+    </Suspense>
   );
 }

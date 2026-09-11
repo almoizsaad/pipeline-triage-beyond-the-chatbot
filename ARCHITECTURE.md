@@ -38,7 +38,10 @@ The optional `overrides` argument is how the "wrong guess" correction loop
 (see FAILURE_TESTS.md) feeds back into scoring: when a rep dismisses a deal,
 the highest-weight triggered signal for that specific deal is down-weighted
 for the rest of the session, and every subsequent `rankDeals` call reflects
-it — the ranking adapts, it doesn't just reorder a stale list.
+it — the ranking adapts, it doesn't just reorder a stale list. This is
+covered directly by the `signalOverrides` test group in
+`src/triage/__tests__/inference.test.ts`, including the case where an
+override is scoped to one deal and must not leak into another.
 
 ### 3. Surfaced decision — `src/triage/TriagePage.tsx`
 The ranked list is never rendered as a table by default. Only
@@ -64,15 +67,19 @@ with the decision card.
 The rep never has to type a query to get here. The ranking, the reasoning,
 and the drafted action all exist before the rep opens the tool — the only
 inputs are two buttons per decision. A free-text box was deliberately left
-out of the primary flow to avoid the "chatbot in a fancy wrapper" failure
-mode described in the challenge brief.
+out of the flow entirely (not hidden behind a toggle, not available as a
+fallback) to avoid the "chatbot in a fancy wrapper" failure mode described
+in the challenge brief. See NOTES.md for what an earlier, unfocused version
+of this project looked like before that decision was made, and why it was
+cut rather than kept as an option.
 
-## Legacy code in this repo
+## What's deliberately not in this repo
 
-`src/agent/` and `src/components/generative-ui/` are a broader "generative
-agent OS" prototype from an earlier iteration of this project (free-text
-intent → dynamically generated UI). The route that used to expose it
-(`/workspace`), and the marketing-style homepage that linked to it, have
-been deleted from the app entirely — `/` and `/triage` both load the graded
-triage workflow directly now. The legacy files remain in the
-repo for reference and are excluded from the TypeScript build. See NOTES.md.
+An earlier iteration of this project was a general-purpose "type any intent,
+get a generated UI" system — a multi-agent runtime, a component registry, a
+CLI, a workspace canvas. All of it has been removed, not archived: this repo
+now contains exactly the four files that implement the graded workflow
+(`deals.ts`, `inference.ts`, `TriagePage.tsx`, and their tests), the three
+shadcn/ui primitives they render with, and the app shell that boots them.
+See [NOTES.md](./NOTES.md) for why that system didn't belong in this
+submission and what specifically it was replaced by.

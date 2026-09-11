@@ -60,7 +60,7 @@ class ErrorBoundary extends Component<Props, State> {
           )}
           <button
             onClick={this.handleReload}
-            className="nexus-btn nexus-btn-primary"
+            className="inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium bg-[#1C1917] text-[#FAF9F6] border border-[#1C1917] transition-colors hover:bg-[#292524] hover:border-[#292524] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#BE123C]"
             aria-label="Refresh page"
           >
             Refresh Page

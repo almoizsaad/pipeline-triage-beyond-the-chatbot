@@ -6,9 +6,9 @@
 
 ## Live demo
 
-`<ADD YOUR DEPLOYED URL HERE AFTER `npm run build` + deploy>`
+`<ADD YOUR DEPLOYED URL HERE AFTER `npm run build` + deploy — see DEPLOYMENT.md>`
 
-Local: `npm install && npm run dev`, then open `http://localhost:5173/` (the root and `/#/triage` both load the tool directly — there's no separate landing page).
+Local: `npm install && npm run dev`, then open `http://localhost:5173/`. There is one screen — no landing page, no navigation, nothing to click through to get here.
 
 ## The workflow, in one line
 
@@ -57,11 +57,14 @@ For the top at-risk deal, the system **drafts** a re-engagement email from the d
 
 ## Failure / wrong-guess recovery
 
-Click **"Not the priority"** on any card. The deal is demoted to the back of the queue, the signal that drove the call is down-weighted for that specific account (the ranking recomputes, it doesn't just reorder), and the correction is logged in the activity feed — the next-highest-risk deal appears immediately, no stall, no "why." Full scenario matrix in [FAILURE_TESTS.md](./FAILURE_TESTS.md).
+Click **"Not the priority"** on any card. The deal is demoted to the back of the queue, the signal that drove the call is down-weighted for that specific account (the ranking recomputes, it doesn't just reorder), and the correction is logged in the activity feed — the next-highest-risk deal appears immediately, no stall, no "why." Full scenario matrix, plus the harder edge cases and what a production version would need, in [FAILURE_TESTS.md](./FAILURE_TESTS.md).
 
 ## Two-year thesis
 
-See [THESIS.md](./THESIS.md).
+See [THESIS.md](./THESIS.md) for the graded, ≤300-word version, and
+[THESIS_APPENDIX.md](./THESIS_APPENDIX.md) for the longer treatment —
+prior art this pattern is already proven by, where it breaks down, and a
+falsifiable two-year prediction rather than a safe one.
 
 ## Notes (AI usage, decisions, out of scope)
 
@@ -69,15 +72,23 @@ See [NOTES.md](./NOTES.md).
 
 ## Tech stack
 
-React 19 + TypeScript + Vite + Tailwind + shadcn/ui, React Router. No backend required to run the demo — the CRM dataset is a static, realistically-structured sample (see NOTES.md). The repo also carries a larger generative-agent runtime (`src/agent/`) from an earlier iteration of this project; it is **not** part of the graded submission, has no route into it in the running app, and is excluded from the TypeScript build — see NOTES.md → "Out of scope."
+React 19 + TypeScript + Vite + Tailwind + three shadcn/ui primitives (button, card, badge). No router, no state library, no backend, no API key — the whole app is one screen driven by a deterministic scoring function over a static, realistically-structured sample dataset (see NOTES.md).
 
 ## Quick start
 
 ```bash
 npm install
 npm run dev
-# open http://localhost:5173/#/triage
+# open http://localhost:5173/
 ```
+
+## Tests
+
+```bash
+npm test
+```
+
+Covers the scoring engine's ranking order, its reasoning trace, the action-priority rules (including the escalation threshold boundary), and the `signalOverrides` feedback loop that backs the "wrong guess" recovery path.
 
 ## Build
 
