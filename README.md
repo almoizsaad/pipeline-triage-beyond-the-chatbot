@@ -6,7 +6,7 @@
 
 ## Live demo
 
-`https://eyond-the-chatbot.vercel.app/`
+[https://eyond-the-chatbot.vercel.app/](https://eyond-the-chatbot.vercel.app/)
 
 Local: `npm install && npm run dev`, then open `http://localhost:5173/`. There is one screen — no landing page, no navigation, nothing to click through to get here.
 
