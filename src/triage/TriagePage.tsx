@@ -1,10 +1,8 @@
-import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
-  ArrowLeft,
   Mail,
   ShieldAlert,
   UserX,
@@ -15,7 +13,7 @@ import {
   Undo2,
 } from 'lucide-react';
 import { DEALS } from './deals';
-import { rankDeals, draftReengagementEmail, type Recommendation, type ActionType } from './inference';
+import { rankDeals, draftReengagementEmail, type Recommendation, type ActionType, type SignalOverrides } from './inference';
 
 const ACTION_META: Record<ActionType, { icon: typeof Mail; tone: string }> = {
   draft_reengagement_email: { icon: Mail, tone: 'text-amber-600 border-amber-200 bg-amber-50' },
@@ -25,8 +23,21 @@ const ACTION_META: Record<ActionType, { icon: typeof Mail; tone: string }> = {
 };
 
 export default function TriagePage() {
-  const allRecs = useMemo(() => rankDeals(DEALS), []);
-  const [order, setOrder] = useState<Recommendation[]>(allRecs);
+  // Recomputed whenever a correction adjusts a signal's weight — the ranking
+  // itself adapts, not just the queue order (see dismissCurrent below).
+  const [signalOverrides, setSignalOverrides] = useState<SignalOverrides>({});
+  const baseRecs = useMemo(() => rankDeals(DEALS, signalOverrides), [signalOverrides]);
+
+  // Manually-demoted deals are pinned to the back of the queue regardless
+  // of their (possibly still-high) score, on top of the base ranking.
+  const [demotedIds, setDemotedIds] = useState<string[]>([]);
+  const order = useMemo(() => {
+    const byId = new Map(baseRecs.map((r) => [r.deal.id, r]));
+    const active = baseRecs.filter((r) => !demotedIds.includes(r.deal.id));
+    const demoted = demotedIds.map((id) => byId.get(id)).filter((r): r is Recommendation => !!r);
+    return [...active, ...demoted];
+  }, [baseRecs, demotedIds]);
+
   const [cursor, setCursor] = useState(0);
   const [emailState, setEmailState] = useState<'idle' | 'reviewing' | 'sent'>('idle');
   const [emailBody, setEmailBody] = useState('');
@@ -35,39 +46,52 @@ export default function TriagePage() {
   const current = order[cursor];
   const remaining = order.length - cursor;
 
-  function openEmailDraft(rec: Recommendation) {
-    const draft = draftReengagementEmail(rec);
-    setEmailBody(draft.body);
-    setEmailState('reviewing');
-  }
-
-  function approveCurrent() {
-    if (!current) return;
-    if (current.action === 'draft_reengagement_email') {
-      openEmailDraft(current);
-      return;
+  // The one autonomous action: for a draft_reengagement_email deal, the
+  // system drafts the email itself and opens it in review — no click
+  // needed to trigger the draft. The human gate is "Approve & send".
+  useEffect(() => {
+    if (current?.action === 'draft_reengagement_email') {
+      setEmailBody(draftReengagementEmail(current).body);
+      setEmailState('reviewing');
+    } else {
+      setEmailState('idle');
     }
+  }, [current?.deal.id, current?.action]);
+
+  function acknowledgeCurrent() {
     advance();
   }
 
-  // The "wrong guess" recovery path: the rep tells the system this deal
-  // is not actually the priority. We demote it, log the correction, and
-  // immediately surface the next-best decision instead of stalling.
+  // The "wrong guess" recovery path: the rep tells the system this deal is
+  // not actually the priority. We demote it, log the correction, AND lower
+  // the weight of whichever signal drove the call for this specific
+  // account — so the ranking adapts within the session instead of making
+  // the same call again once the deal resurfaces.
   function dismissCurrent() {
     if (!current) return;
+    const topSignal = [...current.signals]
+      .filter((s) => s.triggered)
+      .sort((a, b) => b.weight - a.weight)[0];
+
+    if (topSignal) {
+      setSignalOverrides((prev) => {
+        const forDeal = { ...(prev[current.deal.id] ?? {}) };
+        const priorMultiplier = forDeal[topSignal.label] ?? 1;
+        forDeal[topSignal.label] = Math.max(0.2, priorMultiplier * 0.5);
+        return { ...prev, [current.deal.id]: forDeal };
+      });
+    }
+
     setCorrectionLog((log) => [
-      `Marked "${current.deal.dealname}" as not urgent — demoted, next priority surfaced.`,
+      topSignal
+        ? `Marked "${current.deal.dealname}" as not urgent — demoted, and lowered the weight of "${topSignal.label}" for this account.`
+        : `Marked "${current.deal.dealname}" as not urgent — demoted, next priority surfaced.`,
       ...log,
     ]);
-    setOrder((prev) => {
-      const next = prev.filter((r) => r.deal.id !== current.deal.id);
-      next.push(current);
-      return next;
-    });
+    setDemotedIds((prev) => [...prev, current.deal.id]);
   }
 
   function advance() {
-    setEmailState('idle');
     setCursor((c) => Math.min(c + 1, order.length));
   }
 
@@ -81,12 +105,9 @@ export default function TriagePage() {
   return (
     <div className="min-h-screen paper-texture" style={{ background: '#FDFCF8' }}>
       <header className="border-b border-stone-200/70 px-6 py-4 flex items-center justify-between max-w-3xl mx-auto">
-        <Link to="/" className="flex items-center gap-2 text-sm text-stone-500 hover:text-stone-800 transition-colors">
-          <ArrowLeft className="w-4 h-4" />
-          Back
-        </Link>
+        <div className="text-sm font-semibold tracking-tight text-stone-800">Pipeline Triage</div>
         <div className="text-xs font-mono uppercase tracking-widest text-stone-400">
-          Pipeline Triage — {remaining > 0 ? `${remaining} decision${remaining === 1 ? '' : 's'} left` : 'queue clear'}
+          {remaining > 0 ? `${remaining} decision${remaining === 1 ? '' : 's'} left` : 'queue clear'}
         </div>
       </header>
 
@@ -108,7 +129,7 @@ export default function TriagePage() {
             emailState={current.action === 'draft_reengagement_email' ? emailState : 'idle'}
             emailBody={emailBody}
             onEmailBodyChange={setEmailBody}
-            onApprove={approveCurrent}
+            onAcknowledge={acknowledgeCurrent}
             onDismiss={dismissCurrent}
             onSend={sendEmail}
             onContinue={advance}
@@ -181,7 +202,7 @@ function DecisionCard({
   emailState,
   emailBody,
   onEmailBodyChange,
-  onApprove,
+  onAcknowledge,
   onDismiss,
   onSend,
   onContinue,
@@ -190,7 +211,7 @@ function DecisionCard({
   emailState: 'idle' | 'reviewing' | 'sent';
   emailBody: string;
   onEmailBodyChange: (v: string) => void;
-  onApprove: () => void;
+  onAcknowledge: () => void;
   onDismiss: () => void;
   onSend: () => void;
   onContinue: () => void;
@@ -248,10 +269,16 @@ function DecisionCard({
               rows={8}
               className="w-full text-sm rounded-md border border-amber-200 bg-white p-2.5 text-stone-700 focus:outline-none focus:ring-2 focus:ring-amber-300"
             />
-            <Button size="sm" onClick={onSend} className="gap-2">
-              <Send className="w-3.5 h-3.5" />
-              Approve & send
-            </Button>
+            <div className="flex gap-2">
+              <Button size="sm" onClick={onSend} className="gap-2">
+                <Send className="w-3.5 h-3.5" />
+                Approve & send
+              </Button>
+              <Button size="sm" variant="outline" onClick={onDismiss} className="gap-2">
+                <ThumbsDown className="w-3.5 h-3.5" />
+                Not the priority
+              </Button>
+            </div>
           </div>
         )}
 
@@ -267,9 +294,9 @@ function DecisionCard({
 
         {emailState === 'idle' && (
           <div className="flex gap-2 pt-1">
-            <Button onClick={onApprove} className="gap-2">
+            <Button onClick={onAcknowledge} className="gap-2">
               <CheckCircle2 className="w-4 h-4" />
-              {rec.action === 'draft_reengagement_email' ? 'Review draft' : 'Acknowledge'}
+              Acknowledge
             </Button>
             <Button variant="outline" onClick={onDismiss} className="gap-2">
               <ThumbsDown className="w-4 h-4" />

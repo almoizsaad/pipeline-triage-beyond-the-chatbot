@@ -2,7 +2,6 @@ import { Routes, Route } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import { Toaster } from '@/components/ui/sonner';
 
-const Home = lazy(() => import('./pages/Home'));
 const Triage = lazy(() => import('./triage/TriagePage'));
 
 function PageSkeleton() {
@@ -22,7 +21,7 @@ export default function App() {
     <>
       <Suspense fallback={<PageSkeleton />}>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Triage />} />
           <Route path="/triage" element={<Triage />} />
         </Routes>
       </Suspense>

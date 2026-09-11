@@ -31,7 +31,25 @@
   action the interface initiates on its own with human review. We limited
   this to exactly one (drafting the re-engagement email) rather than
   multiple autonomous actions, to keep the review/approval UX legible
-  rather than turning the demo into another wall of AI output.
+  rather than turning the demo into another wall of AI output. The draft
+  opens automatically as soon as that deal's card renders — no click is
+  needed to see the autonomous step happen.
+- **Action priority: a human-conversation need always outranks an
+  automatable one.** When a deal triggers more than one signal, the
+  decision of *which* action to show follows a deliberate order, not just
+  "whichever check runs first in the code": a champion change always wins
+  (a new, unbriefed stakeholder needs a real conversation, and no email
+  draft substitutes for that); a competitor mention only escalates to a
+  human once the combined risk clears a threshold (50/100) — below that,
+  the system's own re-engagement email is treated as a sufficient first
+  move rather than reflexively routing every competitive mention to a
+  human.
+- **The homepage *is* the workflow — no separate landing page.** The
+  original project had a marketing-style homepage ("Nexus OS") describing
+  a generic AI-OS pitch, which risks reading exactly like the "chatbot in
+  a fancy wrapper" pattern the brief disqualifies, and delays a reviewer's
+  first 30 seconds behind unrelated copy. It's been deleted; `/` and
+  `/triage` both load the triage tool directly.
 
 ## Dataset
 Five deals, structured to mirror a real CRM export (field names follow the
@@ -46,13 +64,19 @@ operate on the same `Deal` interface.
 - `src/agent/*` — the multi-agent planner/executor/memory/reflection system
   and its 300+ supporting files. This was the subject of the earlier,
   unfocused iteration of the project and is not part of the graded
-  workflow. The `/workspace` route that used to expose it has been removed
-  from the app entirely (see `App.tsx`) — the legacy files are kept in the
-  repo only for reference, and are excluded from the TypeScript build
-  (`tsconfig.app.json`) so they can't block deploys or accidentally ship
-  broken UI to a reviewer.
+  workflow. The `/workspace` route that used to expose it, and the
+  "Nexus OS" homepage (`src/pages/Home.tsx`, `src/sections/`) that linked
+  to it, have both been removed from the app and deleted from the repo —
+  the app's only route now is the triage workflow. The remaining
+  `src/agent/` files are kept only for reference and are excluded from the
+  TypeScript build (`tsconfig.app.json`) so they can't block deploys or
+  accidentally ship broken UI to a reviewer.
 - Real CRM integration (HubSpot/Salesforce OAuth) — the dataset is static.
-- Persisting "not the priority" corrections back into the ranking weights
-  across sessions — documented as a known limitation in FAILURE_TESTS.md.
+- Persisting "not the priority" corrections across sessions or across
+  reps. Within a session, a correction does feed back into the ranking:
+  the signal that drove the wrong call is down-weighted for that account
+  and every subsequent re-rank reflects it (see FAILURE_TESTS.md). What's
+  not built is writing that adjustment anywhere durable — it lives in
+  React state and resets on reload.
 - Actually sending email — "Approve & send" is simulated in the UI; no
   email provider is wired up.

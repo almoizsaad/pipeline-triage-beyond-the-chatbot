@@ -8,7 +8,7 @@
 
 `<ADD YOUR DEPLOYED URL HERE AFTER `npm run build` + deploy>`
 
-Local: `npm install && npm run dev`, then open `/#/triage`.
+Local: `npm install && npm run dev`, then open `http://localhost:5173/` (the root and `/#/triage` both load the tool directly — there's no separate landing page).
 
 ## The workflow, in one line
 
@@ -57,7 +57,7 @@ For the top at-risk deal, the system **drafts** a re-engagement email from the d
 
 ## Failure / wrong-guess recovery
 
-Click **"Not the priority"** on any card. The deal is demoted to the back of the queue, the correction is logged in the activity feed, and the next-highest-risk deal appears immediately — the system doesn't stall or ask "why," it just re-prioritizes and moves on. Full scenario matrix in [FAILURE_TESTS.md](./FAILURE_TESTS.md).
+Click **"Not the priority"** on any card. The deal is demoted to the back of the queue, the signal that drove the call is down-weighted for that specific account (the ranking recomputes, it doesn't just reorder), and the correction is logged in the activity feed — the next-highest-risk deal appears immediately, no stall, no "why." Full scenario matrix in [FAILURE_TESTS.md](./FAILURE_TESTS.md).
 
 ## Two-year thesis
 

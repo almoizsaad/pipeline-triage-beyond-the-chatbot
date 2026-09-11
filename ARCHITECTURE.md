@@ -14,8 +14,8 @@ this for a live CRM connector means replacing this one file — nothing
 downstream changes.
 
 ### 2. Intent inference — `src/triage/inference.ts`
-`rankDeals(deals: Deal[])` runs a deterministic, weighted rule engine over
-every deal:
+`rankDeals(deals: Deal[], overrides?)` runs a deterministic, weighted rule
+engine over every deal:
 
 | Signal | Trigger condition | Weight |
 |---|---|---|
@@ -25,11 +25,20 @@ every deal:
 | Engagement drop | 0 email opens in 7 days | 15 |
 
 Each triggered signal contributes to a `riskScore` (0–100) and a `confidence`
-value, and the combination of *which* signals fired determines the
-`actionType` (draft an email, flag a champion gap, escalate competitive risk,
-or "on track — no action"). This is inference, not a lookup table: the same
+value. Which signals fired determines the `actionType`, in this priority
+order: a champion change always wins (a new, unbriefed stakeholder needs a
+human conversation, full stop); a competitor mention only escalates to a
+human once `riskScore` clears 50 (below that, the system's own re-engagement
+email is treated as a sufficient first move); otherwise, silence near a
+close date drafts the email. This is inference, not a lookup table: the same
 function scores any deal object, real or synthetic, and the reasoning trace
 (`signals[]`) is returned alongside the score so the UI can show *why*.
+
+The optional `overrides` argument is how the "wrong guess" correction loop
+(see FAILURE_TESTS.md) feeds back into scoring: when a rep dismisses a deal,
+the highest-weight triggered signal for that specific deal is down-weighted
+for the rest of the session, and every subsequent `rankDeals` call reflects
+it — the ranking adapts, it doesn't just reorder a stale list.
 
 ### 3. Surfaced decision — `src/triage/TriagePage.tsx`
 The ranked list is never rendered as a table by default. Only
@@ -41,8 +50,8 @@ with the decision card.
 
 ### 4. Action — human-gated
 - **Autonomous step:** for `draft_reengagement_email`, the system calls
-  `draftReengagementEmail(rec)` and produces a subject + body before the rep
-  asks.
+  `draftReengagementEmail(rec)` and opens the drafted subject + body
+  automatically as soon as the card renders — no click required to see it.
 - **Human gate:** the draft opens in an editable textarea. Nothing sends
   until the rep clicks "Approve & send." Any other recommended action
   (flag a champion gap, escalate) requires an explicit "Acknowledge."
@@ -63,6 +72,7 @@ mode described in the challenge brief.
 `src/agent/` and `src/components/generative-ui/` are a broader "generative
 agent OS" prototype from an earlier iteration of this project (free-text
 intent → dynamically generated UI). The route that used to expose it
-(`/workspace`) has been removed from the app — the graded workflow is
-`/triage` only, reachable from the homepage. The legacy files remain in the
+(`/workspace`), and the marketing-style homepage that linked to it, have
+been deleted from the app entirely — `/` and `/triage` both load the graded
+triage workflow directly now. The legacy files remain in the
 repo for reference and are excluded from the TypeScript build. See NOTES.md.
